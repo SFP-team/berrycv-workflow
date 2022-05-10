@@ -1,0 +1,56 @@
+{
+    "input_dir": "samples",
+    "json": "example_output.json",
+    "filename_metadata": ["timestamp", "plantbarcode", "id", "imgtype", "measurementlabel"],
+    "workflow": "inner_blueberry_deerberry.py",
+    "img_outdir": "output",
+    "tmp_dir": "S:/tmp",
+    "start_date": null,
+    "end_date": null,
+    "imgformat": "jpg",
+    "delimiter": "_",
+    "metadata_filters": {},
+    "timestampformat": "%Y-%m-%d %H-%M-%S",
+    "writeimg": false,
+    "other_args": null,
+    "coprocess": null,
+    "cleanup": true,
+    "append": true,
+    "cluster": "LocalCluster",
+    "cluster_config": {
+        "n_workers": 1,
+        "cores": 2,
+        "memory": "4GB",
+        "disk": "1GB",
+        "log_directory": "logs",
+        "local_directory": null,
+        "job_extra": null
+    },
+    "metadata_terms": {
+        "imgtype": {
+            "label": "image type",
+            "datatype": "<class 'str'>",
+            "value": "none"
+        },
+        "timestamp": {
+            "label": "datetime of image",
+            "datatype": "<class 'datetime.datetime'>",
+            "value": null
+        },
+        "id": {
+            "label": "image identifier",
+            "datatype": "<class 'str'>",
+            "value": "none"
+        },
+        "plantbarcode": {
+            "label": "plant barcode identifier",
+            "datatype": "<class 'str'>",
+            "value": "none"
+        },
+        "measurementlabel": {
+            "label": "mean area of size marker for sample",
+            "datatype": "<class 'str'>",
+            "value": "none"
+        }
+    }
+}
