@@ -9,6 +9,7 @@ import cv2
 import plantcv as pcv
 import matplotlib.pyplot as pyplot
 
+
 ## creates subdirectory by name
 def create_sub(sub):
     try:
@@ -88,3 +89,4 @@ def readJSONconfig(config_dir):
     except:
         print("Could not open config.json")
         return []"""
+

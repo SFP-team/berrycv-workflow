@@ -23,15 +23,16 @@ import cv2
 import numpy as np
 from PIL import Image, ExifTags
 
-## options for plantcv workflow -- add arguments for plantcv-workflow.py compatibility
+## workflow options for plantcv workflow -- add arguments for plantcv-workflow.py compatibility
 def options():
-    parser = argparse.ArgumentParser(description="Imaging processing with PlantCV.")
+    parser = argparse.ArgumentParser(description="Imaging processing with PlantCV.",\
+                                     prog='python -m mymodule')
     parser.add_argument("-i", "--image", help="Input image file.", required=True)
-    parser.add_argument("-r","--result", help="Result file.", required= True )
+    parser.add_argument("-r","--result", help="Result file.", required= False )
     parser.add_argument("-o", "--outdir", help="Output directory for image files.", required=False)
     parser.add_argument("-w","--writeimg", help="Write out images.", default=False, action="store_true")
     parser.add_argument("-D", "--debug", help="Turn on debug, prints intermediate images.")
-    args = parser.parse_args()
+    args, _u = parser.parse_known_args()
     return args
 
 ##
@@ -41,11 +42,10 @@ wd = os.getcwd()
 
 ## get args as namespaces dictionary
 args = vars(options())
-print(args)
 ## create SAMPLE_SUBSET_NAME
 SAMPLE_SUBSET_NAME = os.path.dirname(args['image'])
 ## create subfolders for image data
-sample_parent_dir = os.path.join(wd, 'samples')
+sample_parent_dir = os.path.join(str(args['outdir']))
 
 bcv.create_sub(sample_parent_dir)
 
@@ -132,7 +132,7 @@ def build_samples(raw_img, filepath):
 
         ## identify objects
         id_objects,obj_hierarchy = pcv.find_objects(img=sample_img, mask=mask)
-
+        print('\t')
         print('Found %d objects in %s' % (len(id_objects), filepath))
 
         ## create empty list for marker id objects
@@ -210,7 +210,6 @@ def build_samples(raw_img, filepath):
 
         ## for each object -- o will be a unique id passed into sample_id for the filename metadata
         ## create subdirectories
-        print(sample_parent_dir)
         sample_dir = os.path.join(sample_parent_dir, str(qr.replace(":", "+") + "/"))
 
         bcv.create_sub(sample_dir)

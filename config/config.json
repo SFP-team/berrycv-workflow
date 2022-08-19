@@ -1,7 +1,0 @@
-{
-	"input_dir": "/input",
-	"sample_set_name": "WaxTest",
-	"colorspace": "RGB",
-	"sample_type": "outer",
-	"naive_bayesian_filename": "models/SK-BL-SC_10x5x25_bayes.txt"
-}

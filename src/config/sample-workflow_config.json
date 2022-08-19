@@ -1,10 +1,13 @@
 {
-    "input_dir": "input",
+    "input_dir": "/Users/tj/Documents/x",
     "json": "null.json",
-    "filename_metadata": ["plantbarcode", "other"],
+    "filename_metadata": [
+        "plantbarcode",
+        "other"
+    ],
     "workflow": "sample_workflow.py",
-    "img_outdir": "output",
-    "tmp_dir": "S:/tmp",
+    "img_outdir": "results/samples",
+    "tmp_dir": null,
     "start_date": null,
     "end_date": null,
     "imgformat": "jpg",

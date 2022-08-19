@@ -1,10 +1,16 @@
 {
-    "input_dir": "samples",
-    "json": "example_output.json",
-    "filename_metadata": ["timestamp", "plantbarcode", "id", "imgtype", "measurementlabel"],
-    "workflow": "inner_blueberry_deerberry.py",
-    "img_outdir": "output",
-    "tmp_dir": "S:/tmp",
+    "input_dir": "results/samples",
+    "json": "results/Test_output.json",
+    "filename_metadata": [
+        "timestamp",
+        "plantbarcode",
+        "id",
+        "imgtype",
+        "measurementlabel"
+    ],
+    "workflow": "analysis_workflow.py",
+    "img_outdir": "results",
+    "tmp_dir": null,
     "start_date": null,
     "end_date": null,
     "imgformat": "jpg",
@@ -12,7 +18,10 @@
     "metadata_filters": {},
     "timestampformat": "%Y-%m-%d %H-%M-%S",
     "writeimg": false,
-    "other_args": null,
+    "other_args": [
+        "--analysis",
+        "shape color"
+    ],
     "coprocess": null,
     "cleanup": true,
     "append": true,
