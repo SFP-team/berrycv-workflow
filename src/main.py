@@ -16,7 +16,6 @@ import sys
 import os
 import subprocess
 import cv2
-print(cv2.__file__)
 import numpy as np
 import berrycv as bcv
 from plantcv import plantcv as pcv
