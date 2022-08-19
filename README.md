@@ -10,7 +10,7 @@ Once these workflows are complete, the data is stored in a plantcv JSON output f
 ## Flags
 
 
-Example usage: `bcv-workflow -i _/inputdirectory_ -r _/resultsdirectory_ -a object color`
+Example usage: `main.py -i `_/inputdirectory_ `-r` _/resultsdirectory_ `-a` object color
 - -i, --indir : input directory for raw images, subfolders
 - -n, --name : name of the output fileset without extension
 - -r, --resultdir : output directory for result files
