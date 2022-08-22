@@ -123,7 +123,7 @@ if os.path.isdir(sys.executable):
 else:
     s_dir = os.path.join(os.path.dirname(sys.executable), 'Scripts')
 
-s_dir = os.path.dirname(sys.executable)
+
 
 ## main
 
