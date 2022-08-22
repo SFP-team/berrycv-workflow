@@ -9,7 +9,11 @@ Once these workflows are complete, the data is stored in a plantcv JSON output f
 
 ## Installation
 
-To run from source, use `pip`, or another package manager to install the dependencies in `requirements.txt`.
+Firstly, install the `zbar` shared library using `yum`
+
+`yum install zbar`
+
+Once pulled, to run from source, use `pip`, or another package manager to install the python dependencies in `requirements.txt`.
 
 `pip install -r requirements.txt`
 
