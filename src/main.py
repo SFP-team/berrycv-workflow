@@ -119,9 +119,9 @@ wd_dir = os.getcwd()
 ## -- take the directory or the path of the sys.executable object (different platforms)
 s_dir = ''
 if os.path.isdir(sys.executable):
-    s_dir = os.path.join(sys.executable, 'Scripts')
+    s_dir = os.path.join(sys.executable)
 else:
-    s_dir = os.path.join(os.path.dirname(sys.executable), 'Scripts')
+    s_dir = os.path.join(os.path.dirname(sys.executable))
 
 
 
@@ -136,12 +136,12 @@ if not os.path.exists(args.indir):
 print('(1/3)\tSAMPLING')
 bcv.create_sub(os.path.join(str(args.resultdir), 'samples'))
 
-subprocess.call(['python', os.path.join(s_dir, 'plantcv-workflow.py'), '--config',\
+subprocess.call(['python3', os.path.join(s_dir, 'plantcv-workflow.py'), '--config',\
                  'config/sample-workflow_config.json'], shell=False)
 
 print('(2/3)\tANALYSIS')
 ## call plantcv_workflow.py
-subprocess.call(['python', os.path.join(s_dir, 'plantcv-workflow.py'), '--config',\
+subprocess.call(['python3', os.path.join(s_dir, 'plantcv-workflow.py'), '--config',\
                  'config/analyze-workflow_config.json'], shell=False)
 
 ## get output json name
@@ -150,8 +150,8 @@ results_json = os.path.join(str(args.resultdir), str(args.name) + "_output.json"
 print('(3/3)\tDOWNSTREAM DATA COMPILATION')
 ## call plantcv_utils.py : json2csv
 sample_set_name = str(args.name)
-subprocess.call(['python', os.path.join(s_dir, 'plantcv-utils.py'), 'json2csv', '-j', results_json,\
+subprocess.call(['python3', os.path.join(s_dir, 'plantcv-utils.py'), 'json2csv', '-j', results_json,\
                  '-c', os.path.join(args.resultdir, sample_set_name)], shell=False)
 
-subprocess.call(['python', 'mv_means.py', '-n', str(args.name), '-i', str(args.resultdir),\
+subprocess.call(['python3', 'mv_means.py', '-n', str(args.name), '-i', str(args.resultdir),\
                  '-r', str(args.resultdir)], shell=False)
