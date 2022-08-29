@@ -2,8 +2,7 @@
     "input_dir": "/Users/tj/Documents/x",
     "json": "null.json",
     "filename_metadata": [
-        "plantbarcode",
-        "other"
+        "plantbarcode"
     ],
     "workflow": "sample_workflow.py",
     "img_outdir": "results/samples",
