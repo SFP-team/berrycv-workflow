@@ -1,11 +1,12 @@
 {
-    "input_dir": "/Users/tj/Documents/x",
+    "input_dir": "/Users/tj/Desktop/Gonzalo/Photos/29apr",
     "json": "null.json",
     "filename_metadata": [
-        "plantbarcode"
+        "plantbarcode",
+        "other"
     ],
     "workflow": "sample_workflow.py",
-    "img_outdir": "results/samples",
+    "img_outdir": "/Users/tj/Desktop/Gonzalo/samples",
     "tmp_dir": null,
     "start_date": null,
     "end_date": null,
