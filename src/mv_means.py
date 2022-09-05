@@ -81,7 +81,7 @@ means.to_csv(os.path.join(str(args.resultdir), name + '_mv_means.csv'), index=Fa
 
 # calculate population means -- drop id values
 means.drop('id', axis=1)
-pop_means = means.groupby('plantbarcode')[cspace_domains].mean()
+pop_means = means.groupby('plantbarcode', as_index=False)[cspace_domains].mean()
 pop_means.to_csv(os.path.join(str(args.resultdir), name + '_mv_pop_means.csv'), index=False)
 
 agg = pd.DataFrame(columns=(['plantbarcode'] + cspace_domains))
