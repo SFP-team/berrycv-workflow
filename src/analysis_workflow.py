@@ -117,6 +117,21 @@ def main():
             blur_img = pcv.gaussian_blur(img=sample_img, ksize=(17, 17), sigma_x=0, sigma_y=None)
             #pcv.params.debug = 'none'
 
+            sc_masks = pcv.naive_bayes_classifier(rgb_img=blur_img,
+                                                  pdf_file="/Users/tj/source/BlueberryCV/models/SK-BL-SC_10x5x25_bayes.txt")
+            masks = pcv.naive_bayes_classifier(rgb_img=blur_img,
+                                               pdf_file="/Users/tj/source/BlueberryCV/models/bloom-nobloom/BL-NBL_nbmc.txt")
+
+            masks['bloom'] = pcv.logical_and(masks['bloom'], mask)
+            masks['nobloom'] = pcv.logical_and(masks['nobloom'], mask)
+
+            masks['bloom'] = pcv.logical_and(masks['bloom'], pcv.invert(sc_masks['scar']))
+            masks['nobloom'] = pcv.logical_and(masks['nobloom'], pcv.invert(sc_masks['scar']))
+
+            nb_mc_img = pcv.visualize.colorize_masks([masks['bloom'], masks['nobloom']], \
+                                                     colors=['pink', 'blue'])
+            pcv.logical_and(pcv.invert(sc_masks['scar']), mask)
+            cv2.imwrite('test.jpg', nb_mc_img)
             
         pcv.outputs.save_results(filename=args.result, outformat="json")
 
