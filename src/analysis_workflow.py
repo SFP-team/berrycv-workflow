@@ -4,7 +4,7 @@
 Name: analysis_workflow.py
 Description: dynamic workflow for inner/outer fruit feature extraction and ml models
 Author: TJ Schultz
-Date: 6/24/22
+Date: 11/2/22
 """
 import argparse
 import sys
@@ -106,7 +106,7 @@ def main():
             steps = str(args.analysis[0]).split(' ')
 
             ## analyze object
-            pcv.params.debug = 'print'
+            pcv.params.debug = 'none'
             if 'shape' in steps:
                 analyze_obj_img = pcv.analyze_object(img=sample_img, obj=id_objects[o], mask=mask, label=key)
             ## analyze color
@@ -118,10 +118,13 @@ def main():
 
 
                 sc_masks = pcv.naive_bayes_classifier(rgb_img=blur_img,
-                                                      pdf_file="/Users/tj/source/BlueberryCV/models/SK-BL-SC_10x5x25_bayes.txt")
+                                                      pdf_file="models/SK-BL-SC_nbmc.txt")
                 masks = pcv.naive_bayes_classifier(rgb_img=blur_img,
-                                                   pdf_file="/Users/tj/source/BlueberryCV/models/bloom-nobloom/BL-NBL_nbmc.txt")
+                                                   pdf_file="models/BL-NBL_nbmc.txt")
 
+                ## normalize masks and calculate the observation values
+
+                sc_masks['scar'] = pcv.logical_and(sc_masks['scar'], mask)
                 masks['bloom'] = pcv.logical_and(masks['bloom'], mask)
                 masks['nobloom'] = pcv.logical_and(masks['nobloom'], mask)
 
@@ -130,8 +133,34 @@ def main():
 
                 nb_mc_img = pcv.visualize.colorize_masks([masks['bloom'], masks['nobloom']], \
                                                          colors=['pink', 'blue'])
-                pcv.logical_and(pcv.invert(sc_masks['scar']), mask)
-                cv2.imwrite('test.jpg', nb_mc_img)
+
+                nobloom_area = np.count_nonzero(masks['nobloom'])
+                bloom_area = np.count_nonzero(masks['bloom'])
+                scar_area = np.count_nonzero(sc_masks['scar'])
+                bloom_fac = bloom_area / (bloom_area + nobloom_area - scar_area)
+
+                ## add observations
+
+                pcv.outputs.add_observation(sample=key, variable='nobloom_area',
+                                            trait='area of nobloom pixels',
+                                            method='pixels', scale='pixels', datatype=int,
+                                            value=nobloom_area, label=key)
+
+                pcv.outputs.add_observation(sample=key, variable='bloom_area',
+                                            trait='area of bloom pixels',
+                                            method='pixels', scale='pixels', datatype=int,
+                                            value=bloom_area, label=key)
+
+                pcv.outputs.add_observation(sample=key, variable='scar_area',
+                                            trait='area of scar pixels',
+                                            method='pixels', scale='pixels', datatype=int,
+                                            value=scar_area, label=key)
+
+                pcv.outputs.add_observation(sample=key, variable='bloom_factor',
+                                            trait='ratio of bloom pixels to all skin pixels',
+                                            method='ratio of pixels', scale='percent', datatype=float,
+                                            value=bloom_fac, label=key)
+
                 pcv.params.debug = 'none'
             
         pcv.outputs.save_results(filename=args.result, outformat="json")
