@@ -106,32 +106,33 @@ def main():
             steps = str(args.analysis[0]).split(' ')
 
             ## analyze object
-            #pcv.params.debug = 'plot'
+            pcv.params.debug = 'print'
             if 'shape' in steps:
                 analyze_obj_img = pcv.analyze_object(img=sample_img, obj=id_objects[o], mask=mask, label=key)
             ## analyze color
             if 'color' in steps:
                 analyze_col_img = pcv.analyze_color(rgb_img=sample_img, mask=mask, label=key)
-                    
-            ## blue img before using naive baysian classifier
-            blur_img = pcv.gaussian_blur(img=sample_img, ksize=(17, 17), sigma_x=0, sigma_y=None)
-            #pcv.params.debug = 'none'
+            if 'bloom' in steps:
+            ## blur img before using naive baysian classifier
+                blur_img = pcv.gaussian_blur(img=sample_img, ksize=(17, 17), sigma_x=0, sigma_y=None)
 
-            sc_masks = pcv.naive_bayes_classifier(rgb_img=blur_img,
-                                                  pdf_file="/Users/tj/source/BlueberryCV/models/SK-BL-SC_10x5x25_bayes.txt")
-            masks = pcv.naive_bayes_classifier(rgb_img=blur_img,
-                                               pdf_file="/Users/tj/source/BlueberryCV/models/bloom-nobloom/BL-NBL_nbmc.txt")
 
-            masks['bloom'] = pcv.logical_and(masks['bloom'], mask)
-            masks['nobloom'] = pcv.logical_and(masks['nobloom'], mask)
+                sc_masks = pcv.naive_bayes_classifier(rgb_img=blur_img,
+                                                      pdf_file="/Users/tj/source/BlueberryCV/models/SK-BL-SC_10x5x25_bayes.txt")
+                masks = pcv.naive_bayes_classifier(rgb_img=blur_img,
+                                                   pdf_file="/Users/tj/source/BlueberryCV/models/bloom-nobloom/BL-NBL_nbmc.txt")
 
-            masks['bloom'] = pcv.logical_and(masks['bloom'], pcv.invert(sc_masks['scar']))
-            masks['nobloom'] = pcv.logical_and(masks['nobloom'], pcv.invert(sc_masks['scar']))
+                masks['bloom'] = pcv.logical_and(masks['bloom'], mask)
+                masks['nobloom'] = pcv.logical_and(masks['nobloom'], mask)
 
-            nb_mc_img = pcv.visualize.colorize_masks([masks['bloom'], masks['nobloom']], \
-                                                     colors=['pink', 'blue'])
-            pcv.logical_and(pcv.invert(sc_masks['scar']), mask)
-            cv2.imwrite('test.jpg', nb_mc_img)
+                masks['bloom'] = pcv.logical_and(masks['bloom'], pcv.invert(sc_masks['scar']))
+                masks['nobloom'] = pcv.logical_and(masks['nobloom'], pcv.invert(sc_masks['scar']))
+
+                nb_mc_img = pcv.visualize.colorize_masks([masks['bloom'], masks['nobloom']], \
+                                                         colors=['pink', 'blue'])
+                pcv.logical_and(pcv.invert(sc_masks['scar']), mask)
+                cv2.imwrite('test.jpg', nb_mc_img)
+                pcv.params.debug = 'none'
             
         pcv.outputs.save_results(filename=args.result, outformat="json")
 
