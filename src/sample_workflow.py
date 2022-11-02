@@ -46,6 +46,7 @@ args = vars(options())
 SAMPLE_SUBSET_NAME = os.path.dirname(args['image'])
 ## create subfolders for image data
 sample_parent_dir = os.path.join(str(args['outdir']))
+error_parent_dir = sample_parent_dir.replace('samples', 'error')
 
 bcv.create_sub(sample_parent_dir)
 
@@ -138,7 +139,7 @@ def build_samples(raw_img, filepath):
         ## create empty list for marker id objects
         img_divisions = 10
         marker_id_objects = []
-        while len(marker_id_objects) <= 0 or img_divisions < 7:
+        while len(marker_id_objects) <= 0 and img_divisions >= 7:
 
             ## create ROIs of the size markers
             marker1_contour, marker1_hierarchy = pcv.roi.rectangle(img=sample_img, x=0, y=0,\
@@ -201,6 +202,11 @@ def build_samples(raw_img, filepath):
             pcv.outputs.add_observation(sample='default', variable='num_markers', trait='number of size markers which contribute to the reported area -- used in determining the mean area', \
                                         method='count of markers', scale='amount', datatype=int, \
                                         value=len(marker_id_objects), label='markers')
+
+        ## error img
+        if (len(marker_id_objects) <= 0 and img_divisions < 7):
+            cv2.imwrite(os.path.join(error_parent_dir, str(qr.replace(":", "+")) + '.jpg'), raw_img)
+            return
 
         pcv.params.debug = 'none'
 
