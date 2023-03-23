@@ -26,6 +26,6 @@ Example usage: `main.py -i `_/inputdirectory_ `-n` _resultname_ `-r` _/resultsdi
 - -a, --analysis : list of analysis steps to run separated by space. Includes:
   - **shape** : height, object area, convex hull, convex hull area, perimeter, extent x, extent y, longest axis, centroid x coordinate, centroid y coordinate, in bounds QC
   - **color** : color data from RGB, LAB, and HSV color channels as histograms for each
-
+- -P : using the photo booth for input photos, no flag uses sample_leaf_workflow.py
 
 - -vv, --verbose : toggles verbose output during workflow.

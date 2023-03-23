@@ -44,6 +44,7 @@ def options():
     parser.add_argument("-i", "--indir", help="Input image folder directory", required=True)
     parser.add_argument("-n","--name", help="Name of the result files without extension.", required=True)
     parser.add_argument("-r", "--resultdir", help="Output directory for results files.", required=True)
+    parser.add_argument("-P", "--photobooth", help="Indicate photobooth use (building samples)", action="store_true")
     parser.add_argument("-vv", "--verbose", help="Toggles verbose output during workflow. Used in debugging.", required=False)
     ## read command flags
     args = parser.parse_args()
@@ -75,6 +76,10 @@ try:
         sample_config = json.load(_f)
         sample_config['input_dir'] = str(args.indir)
         sample_config['img_outdir'] = os.path.join(str(args.resultdir), 'samples')
+        if args.photobooth:
+            sample_config['workflow'] = "sample_workflow.py"
+        else:
+            sample_config['workflow'] = "sample_leaf_workflow.py"
         _f.seek(0)        ## seek f
         json.dump(sample_config, _f, indent=4)
         _f.truncate()     ## remove end
@@ -135,8 +140,8 @@ if not os.path.exists(args.indir):
 
 ## call run sample_workflow -- create samples for extraction
 print('(1/3)\tSAMPLING')
-bcv.create_sub(os.path.join(str(args.resultdir), 'samples'))
 
+bcv.create_sub(os.path.join(str(args.resultdir), 'samples'))
 subprocess.call([python_hand, os.path.join(s_dir, 'plantcv-workflow.py'), '--config',\
                  'config/sample-workflow_config.json'], shell=False)
 

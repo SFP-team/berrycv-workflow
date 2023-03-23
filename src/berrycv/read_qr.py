@@ -34,6 +34,22 @@ def readQR(img):
         print("No QR code detected.\n")
         return ""
 
+## returns the full structure given by pyzbar
+def getQRStruct(img):
+    try:
+        ## decode the data using pyzbar decode
+        qr_data = decodeQR(img)
+
+        ## print the data if found, return without beginning and end
+        if qr_data is not None and len(qr_data) != 0:
+            ## print("QR code read as: \"%s\"\n" % qr_data[0][0])
+            return qr_data
+
+    except:
+        ## return a null label
+        print("No QR code detected.\n")
+        return ""
+
 ## returns a dictionary containing the unpacked QR code from post-harvest photos in key-value pairs
 def unpackQR(qr_raw, keys, delim):
     keys = ["Selection ID", "Row", "Pos", "Rep", "Time", "Order"]

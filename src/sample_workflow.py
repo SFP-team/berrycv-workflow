@@ -58,6 +58,7 @@ def assemble_filename_str(dt_original, qr_raw, sample_id, img_type, mean_area):
 
     ## format QR code data
     qr_format = str(qr_raw.replace(":", "+"))
+    qr_format = str(qr_format.replace("|", "+"))
 
     ## format id
     sample_id_format = str(sample_id)
@@ -105,12 +106,15 @@ def build_samples(raw_img, filepath):
         ## get the working directory
         wd = os.getcwd()
 
-        ## read the date and time of the photo from a dict of the exif data
-        exif_img = Image.open(filepath)
-        exif_tags = { ExifTags.TAGS[i]: j for i, j in exif_img._getexif().items() if i in ExifTags.TAGS }
+        try:
+            ## read the date and time of the photo from a dict of the exif data
+            exif_img = Image.open(filepath)
+            exif_tags = { ExifTags.TAGS[i]: j for i, j in exif_img._getexif().items() if i in ExifTags.TAGS }
 
-        ## store original capture datetime
-        dt_og = exif_tags['DateTimeOriginal']
+            ## store original capture datetime
+            dt_og = exif_tags['DateTimeOriginal']
+        except:
+            dt_og = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S').replace('\..*','')
 
         ## read the QR code information
         qr = bcv.readQR(raw_img)
@@ -216,7 +220,9 @@ def build_samples(raw_img, filepath):
 
         ## for each object -- o will be a unique id passed into sample_id for the filename metadata
         ## create subdirectories
-        sample_dir = os.path.join(sample_parent_dir, str(qr.replace(":", "+") + "/"))
+        s_d = str(qr.replace(":", "+"))
+        s_d = str(s_d.replace("|", "+") + "/")
+        sample_dir = os.path.join(sample_parent_dir, s_d)
 
         bcv.create_sub(sample_dir)
 
@@ -240,6 +246,7 @@ def build_samples(raw_img, filepath):
             ## save file
             cv2.imwrite(sample_dir + filename_str + '.jpg', final_img)
 
+
 def main():
 
     pcv.params.debug = "none"
@@ -247,11 +254,12 @@ def main():
 
     ## if not bad image, analyze
     if not raw_img is None:
-
         ## build samples
         build_samples(raw_img, args['image'])
         pcv.params.debug = 'none'
         pcv.outputs.clear()
+
+
 
 if __name__ == "__main__":
     main()
