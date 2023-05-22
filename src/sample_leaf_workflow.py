@@ -133,6 +133,7 @@ def build_samples(raw_img, filepath):
         qr_bbox = qr[0].rect
         sample_img = raw_img[math.floor(1 * (qr_bbox[1] + qr_bbox[3])):, :]
         qr = bcv.readQR(raw_img)
+        print("QR: " + qr)
 
     ## create mask and apply it to the cropped image
     mask = generate_mask(sample_img)
@@ -169,7 +170,7 @@ def build_samples(raw_img, filepath):
     ## for each object -- o will be a unique id passed into sample_id for the filename metadata
     ## create subdirectories
     s_d = qr.replace(":", "+")
-    s_d = str(s_d.replace("|", "+") + "/")
+    s_d = str(s_d.replace("|", "") + "/")
     sample_dir = os.path.join(sample_parent_dir, s_d)
 
     bcv.create_sub(sample_dir)
@@ -187,7 +188,7 @@ def build_samples(raw_img, filepath):
         # blur_img = pcv.gaussian_blur(img=crop_img, ksize=(17, 17), sigma_x=0, sigma_y=None)
 
         ## create filename
-        filename_str = assemble_filename_str(dt_og, qr[0][0], o, "VIS", mean_marker_area)
+        filename_str = assemble_filename_str(dt_og, qr, o, "VIS", mean_marker_area)
 
         ## save file
         cv2.imwrite(sample_dir + filename_str + '.jpg', final_img)
