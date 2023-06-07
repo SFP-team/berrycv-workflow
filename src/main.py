@@ -5,7 +5,7 @@ Name: main.py
 Description: main script for executing all stages of sample segmentation, feature extraction,
 and file conversion for workflows from parsed args
 Author: TJ Schultz
-Date: 8/10/2022
+Date: 6/7/2023
 -- various seemingly unused dependencies are imported in this script
     to successfully build the application using pyinstaller
 """
@@ -45,6 +45,7 @@ def options():
     parser.add_argument("-n","--name", help="Name of the result files without extension.", required=True)
     parser.add_argument("-r", "--resultdir", help="Output directory for results files.", required=True)
     parser.add_argument("-P", "--photobooth", help="Indicate photobooth use (building samples)", action="store_true")
+    parser.add_argument("-S", "--single", help="Indicate single sample mode (one masked photo per input photo)", action="store_true")
     parser.add_argument("-vv", "--verbose", help="Toggles verbose output during workflow. Used in debugging.", required=False)
     ## read command flags
     args = parser.parse_args()
@@ -76,7 +77,9 @@ try:
         sample_config = json.load(_f)
         sample_config['input_dir'] = str(args.indir)
         sample_config['img_outdir'] = os.path.join(str(args.resultdir), 'samples')
-        if args.photobooth:
+        if args.single:
+            sample_config['workflow'] = "single_sample_workflow.py"
+        elif args.photobooth:
             sample_config['workflow'] = "sample_workflow.py"
         else:
             sample_config['workflow'] = "sample_leaf_workflow.py"
@@ -123,13 +126,16 @@ wd_dir = os.getcwd()
 
 ## get scripts directory
 ## -- take the directory or the path of the sys.executable object (different platforms)
-s_dir = ''
-if os.path.isdir(sys.executable):
-    s_dir = os.path.join(sys.executable, 'Scripts')
+import platform
+
+if platform.system() in ["Windows"]:
+    s_dir = ''
+    if os.path.isdir(sys.executable):
+        s_dir = os.path.join(sys.executable, 'Scripts')
+    else:
+        s_dir = os.path.join(os.path.dirname(sys.executable), 'Scripts')
 else:
-    s_dir = os.path.join(os.path.dirname(sys.executable), 'Scripts')
-
-
+    s_dir = os.path.dirname(sys.executable)
 
 ## main
 
