@@ -123,11 +123,16 @@ wd_dir = os.getcwd()
 
 ## get scripts directory
 ## -- take the directory or the path of the sys.executable object (different platforms)
+import platform
 s_dir = ''
-if os.path.isdir(sys.executable):
-    s_dir = os.path.join(sys.executable, 'Scripts')
+
+if platform.system() in ["Windows"]:
+    if os.path.isdir(sys.executable):
+        s_dir = os.path.join(sys.executable, 'Scripts')
+    else:
+        s_dir = os.path.join(os.path.dirname(sys.executable), 'Scripts')
 else:
-    s_dir = os.path.join(os.path.dirname(sys.executable), 'Scripts')
+    s_dir = os.path.dirname(sys.executable)
 
 
 
