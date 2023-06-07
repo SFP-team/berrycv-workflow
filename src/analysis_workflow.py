@@ -106,7 +106,12 @@ def main():
         ## analyze object
         pcv.params.debug = 'none'
         if 'shape' in steps:
-            analyze_obj_img = pcv.analyze_object(img=sample_img, obj=id_objects[o], mask=mask, label=key)
+            ## identify objects -- should be only one object
+            id_objects, obj_hierarchy = pcv.find_objects(img=sample_img, mask=mask)
+
+            ## for each object -- though there should be one per sample photo
+            for o in range(len(id_objects)):
+                analyze_obj_img = pcv.analyze_object(img=sample_img, obj=id_objects[o], mask=mask, label=key)
         ## analyze color
         if 'color' in steps:
             analyze_col_img = pcv.analyze_color(rgb_img=sample_img, mask=mask, label=key)
@@ -160,6 +165,29 @@ def main():
                                         value=bloom_fac, label=key)
 
             pcv.params.debug = 'none'
+        if 'disease' in steps:
+            img_hsv = cv2.cvtColor(sample_img, cv2.COLOR_BGR2HSV)
+            msk_hue = np.logical_and((img_hsv[:, :, 0] > 0), (img_hsv[:, :, 0] < 25))
+            msk_sat = np.logical_and((img_hsv[:, :, 1] > 30), (img_hsv[:, :, 1] < 255))
+            total_disease = np.logical_and(msk_hue, msk_sat)
+            msk_hue = ~np.logical_and((img_hsv[:, :, 0] > 0), (img_hsv[:, :, 0] < 25))
+            msk_sat = np.logical_and((img_hsv[:, :, 1] > 30), (img_hsv[:, :, 1] < 255))
+            total_ok = np.logical_and(msk_hue, msk_sat)
+            ##body_img = cv2.cvtColor(sample_img, cv2.COLOR_BGR2RGB)
+            body_img = sample_img
+            disease = body_img.copy()
+            healthy = body_img.copy()
+            # write original image, disease and healthy parts
+            disease[~total_disease] = 255
+            cv2.imwrite(os.path.dirname(filename) + '/disease.jpg', disease)
+            healthy[~total_ok] = 255
+            cv2.imwrite(os.path.dirname(filename) + '/healthy.jpg', healthy)
+
+            disease_fac = np.sum(total_disease) / (np.sum(total_disease) + np.sum(total_ok))
+            pcv.outputs.add_observation(sample=key, variable='disease_factor',
+                                        trait='ratio of disease pixels to all leaf pixels',
+                                        method='ratio of pixels', scale='percent', datatype=float,
+                                        value=disease_fac, label=key)
             
         pcv.outputs.save_results(filename=args.result, outformat="json")
 
