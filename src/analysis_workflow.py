@@ -92,76 +92,74 @@ def main():
         mask = generate_mask(sample_img)
         
         ## identify objects -- should be only one object
-        id_objects,obj_hierarchy = pcv.find_objects(img=sample_img, mask=mask)
-                
-        ## for each object -- though there should be one per sample photo
-        for o in range(len(id_objects)):
+        ##id_objects,obj_hierarchy = pcv.find_objects(img=sample_img, mask=mask)
+
             
-            ## set the key to the shortened filename
-            key = name
+        ## set the key to the shortened filename
+        key = name
 
-            ## analysis steps
+        ## analysis steps
 
-            ## split analysis arg into list
-            steps = str(args.analysis[0]).split(' ')
+        ## split analysis arg into list
+        steps = str(args.analysis[0]).split(' ')
 
-            ## analyze object
+        ## analyze object
+        pcv.params.debug = 'none'
+        if 'shape' in steps:
+            analyze_obj_img = pcv.analyze_object(img=sample_img, obj=id_objects[o], mask=mask, label=key)
+        ## analyze color
+        if 'color' in steps:
+            analyze_col_img = pcv.analyze_color(rgb_img=sample_img, mask=mask, label=key)
+        if 'bloom' in steps:
+        ## blur img before using naive baysian classifier
+            blur_img = pcv.gaussian_blur(img=sample_img, ksize=(17, 17), sigma_x=0, sigma_y=None)
+
+
+            sc_masks = pcv.naive_bayes_classifier(rgb_img=blur_img,
+                                                  pdf_file="models/SK-BL-SC_nbmc.txt")
+            masks = pcv.naive_bayes_classifier(rgb_img=blur_img,
+                                               pdf_file="models/BL-NBL_nbmc.txt")
+
+            ## normalize masks and calculate the observation values
+
+            sc_masks['scar'] = pcv.logical_and(sc_masks['scar'], mask)
+            masks['bloom'] = pcv.logical_and(masks['bloom'], mask)
+            masks['nobloom'] = pcv.logical_and(masks['nobloom'], mask)
+
+            masks['bloom'] = pcv.logical_and(masks['bloom'], pcv.invert(sc_masks['scar']))
+            masks['nobloom'] = pcv.logical_and(masks['nobloom'], pcv.invert(sc_masks['scar']))
+
+            nb_mc_img = pcv.visualize.colorize_masks([masks['bloom'], masks['nobloom']], \
+                                                     colors=['pink', 'blue'])
+
+            nobloom_area = np.count_nonzero(masks['nobloom'])
+            bloom_area = np.count_nonzero(masks['bloom'])
+            scar_area = np.count_nonzero(sc_masks['scar'])
+            bloom_fac = bloom_area / (bloom_area + nobloom_area - scar_area)
+
+            ## add observations
+
+            pcv.outputs.add_observation(sample=key, variable='nobloom_area',
+                                        trait='area of nobloom pixels',
+                                        method='pixels', scale='pixels', datatype=int,
+                                        value=nobloom_area, label=key)
+
+            pcv.outputs.add_observation(sample=key, variable='bloom_area',
+                                        trait='area of bloom pixels',
+                                        method='pixels', scale='pixels', datatype=int,
+                                        value=bloom_area, label=key)
+
+            pcv.outputs.add_observation(sample=key, variable='scar_area',
+                                        trait='area of scar pixels',
+                                        method='pixels', scale='pixels', datatype=int,
+                                        value=scar_area, label=key)
+
+            pcv.outputs.add_observation(sample=key, variable='bloom_factor',
+                                        trait='ratio of bloom pixels to all skin pixels',
+                                        method='ratio of pixels', scale='percent', datatype=float,
+                                        value=bloom_fac, label=key)
+
             pcv.params.debug = 'none'
-            if 'shape' in steps:
-                analyze_obj_img = pcv.analyze_object(img=sample_img, obj=id_objects[o], mask=mask, label=key)
-            ## analyze color
-            if 'color' in steps:
-                analyze_col_img = pcv.analyze_color(rgb_img=sample_img, mask=mask, label=key)
-            if 'bloom' in steps:
-            ## blur img before using naive baysian classifier
-                blur_img = pcv.gaussian_blur(img=sample_img, ksize=(17, 17), sigma_x=0, sigma_y=None)
-
-
-                sc_masks = pcv.naive_bayes_classifier(rgb_img=blur_img,
-                                                      pdf_file="models/SK-BL-SC_nbmc.txt")
-                masks = pcv.naive_bayes_classifier(rgb_img=blur_img,
-                                                   pdf_file="models/BL-NBL_nbmc.txt")
-
-                ## normalize masks and calculate the observation values
-
-                sc_masks['scar'] = pcv.logical_and(sc_masks['scar'], mask)
-                masks['bloom'] = pcv.logical_and(masks['bloom'], mask)
-                masks['nobloom'] = pcv.logical_and(masks['nobloom'], mask)
-
-                masks['bloom'] = pcv.logical_and(masks['bloom'], pcv.invert(sc_masks['scar']))
-                masks['nobloom'] = pcv.logical_and(masks['nobloom'], pcv.invert(sc_masks['scar']))
-
-                nb_mc_img = pcv.visualize.colorize_masks([masks['bloom'], masks['nobloom']], \
-                                                         colors=['pink', 'blue'])
-
-                nobloom_area = np.count_nonzero(masks['nobloom'])
-                bloom_area = np.count_nonzero(masks['bloom'])
-                scar_area = np.count_nonzero(sc_masks['scar'])
-                bloom_fac = bloom_area / (bloom_area + nobloom_area - scar_area)
-
-                ## add observations
-
-                pcv.outputs.add_observation(sample=key, variable='nobloom_area',
-                                            trait='area of nobloom pixels',
-                                            method='pixels', scale='pixels', datatype=int,
-                                            value=nobloom_area, label=key)
-
-                pcv.outputs.add_observation(sample=key, variable='bloom_area',
-                                            trait='area of bloom pixels',
-                                            method='pixels', scale='pixels', datatype=int,
-                                            value=bloom_area, label=key)
-
-                pcv.outputs.add_observation(sample=key, variable='scar_area',
-                                            trait='area of scar pixels',
-                                            method='pixels', scale='pixels', datatype=int,
-                                            value=scar_area, label=key)
-
-                pcv.outputs.add_observation(sample=key, variable='bloom_factor',
-                                            trait='ratio of bloom pixels to all skin pixels',
-                                            method='ratio of pixels', scale='percent', datatype=float,
-                                            value=bloom_fac, label=key)
-
-                pcv.params.debug = 'none'
             
         pcv.outputs.save_results(filename=args.result, outformat="json")
 
