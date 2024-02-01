@@ -1,6 +1,6 @@
 {
-    "input_dir": "results/samples",
-    "json": "results/Test_output.json",
+    "input_dir": "",
+    "json": "",
     "filename_metadata": [
         "timestamp",
         "plantbarcode",
@@ -9,7 +9,7 @@
         "measurementlabel"
     ],
     "workflow": "analysis_workflow.py",
-    "img_outdir": "results",
+    "img_outdir": "",
     "tmp_dir": null,
     "start_date": null,
     "end_date": null,
@@ -20,15 +20,15 @@
     "writeimg": false,
     "other_args": [
         "--analysis",
-        "shape color"
+        "shape"
     ],
     "coprocess": null,
     "cleanup": true,
     "append": true,
     "cluster": "LocalCluster",
     "cluster_config": {
-        "n_workers": 1,
-        "cores": 2,
+        "n_workers": 8,
+        "cores": 8,
         "memory": "4GB",
         "disk": "1GB",
         "log_directory": "logs",
