@@ -14,7 +14,7 @@ import matplotlib.pyplot as pyplot
 def create_sub(sub):
     try:
         os.mkdir(sub)
-    except Exception:
+    except Exception as e:
         if os.path.isdir(sub):
             pass
         else:

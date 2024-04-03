@@ -1,17 +1,16 @@
 {
-    "input_dir": "/Users/tj/Desktop/Gonzalo/Photos/29apr",
-    "json": "null.json",
+    "input_dir": "",
+    "json": "",
     "filename_metadata": [
-        "plantbarcode",
-        "other"
+        "plantbarcode"
     ],
-    "workflow": "sample_workflow.py",
-    "img_outdir": "/Users/tj/Desktop/Gonzalo/samples",
-    "tmp_dir": null,
+    "workflow": "single_sample_workflow.py",
+    "img_outdir": "",
+    "tmp_dir": "",
     "start_date": null,
     "end_date": null,
     "imgformat": "jpg",
-    "delimiter": "_",
+    "delimiter": "(.)+",
     "metadata_filters": {},
     "timestampformat": "%Y-%m-%d %H-%M-%S",
     "writeimg": false,
@@ -22,9 +21,9 @@
     "cluster": "LocalCluster",
     "cluster_config": {
         "n_workers": 1,
-        "cores": 2,
-        "memory": "4GB",
-        "disk": "1GB",
+        "cores": 1,
+        "memory": "1GB",
+        "disk": "12GB",
         "log_directory": "logs",
         "local_directory": null,
         "job_extra": null

@@ -4,7 +4,7 @@
 Name: analysis_workflow.py
 Description: dynamic workflow for inner/outer fruit feature extraction and ml models
 Author: TJ Schultz
-Date: 11/2/22
+Date: 3/13/24
 """
 import argparse
 import sys
@@ -166,29 +166,84 @@ def main():
 
             pcv.params.debug = 'none'
         if 'disease' in steps:
-            img_hsv = cv2.cvtColor(sample_img, cv2.COLOR_BGR2HSV)
-            msk_hue = np.logical_and((img_hsv[:, :, 0] > 0), (img_hsv[:, :, 0] < 25))
-            msk_sat = np.logical_and((img_hsv[:, :, 1] > 30), (img_hsv[:, :, 1] < 255))
-            total_disease = np.logical_and(msk_hue, msk_sat)
-            msk_hue = ~np.logical_and((img_hsv[:, :, 0] > 0), (img_hsv[:, :, 0] < 25))
-            msk_sat = np.logical_and((img_hsv[:, :, 1] > 30), (img_hsv[:, :, 1] < 255))
-            total_ok = np.logical_and(msk_hue, msk_sat)
-            ##body_img = cv2.cvtColor(sample_img, cv2.COLOR_BGR2RGB)
-            body_img = sample_img
-            disease = body_img.copy()
-            healthy = body_img.copy()
-            # write original image, disease and healthy parts
-            disease[~total_disease] = 255
-            cv2.imwrite(os.path.dirname(filename) + '/disease.jpg', disease)
-            healthy[~total_ok] = 255
-            cv2.imwrite(os.path.dirname(filename) + '/healthy.jpg', healthy)
+            
+            ## blur img before using naive baysian classifier
+            blur_img = pcv.gaussian_blur(img=sample_img, ksize=(17, 17), sigma_x=0, sigma_y=None)
 
-            disease_fac = np.sum(total_disease) / (np.sum(total_disease) + np.sum(total_ok))
+            masks = pcv.naive_bayes_classifier(rgb_img=blur_img,
+                                               pdf_file="models/HealthyDiseaseBackground24_nbmc.txt")
+
+            ## normalize masks and calculate the observation values
+
+            masks['healthy'] = pcv.logical_and(masks['healthy'], mask)
+            masks['disease'] = pcv.logical_and(masks['disease'], mask)
+
+            nb_mc_img = pcv.visualize.colorize_masks([masks['background'], masks['healthy'], masks['disease']], \
+                                                     colors=['black', 'green', 'orange'])
+            cv2.imwrite(os.path.dirname(filename) + ('/plot_%s.jpg' % (os.path.basename(filename))), nb_mc_img)
+            healthy_area = np.count_nonzero(masks['healthy'])
+            disease_area = np.count_nonzero(masks['disease'])
+            disease_fac = disease_area / (healthy_area + disease_area)
+
+            ## add observations
+
+            pcv.outputs.add_observation(sample=key, variable='healthy_area',
+                                        trait='area of healthy pixels',
+                                        method='pixels', scale='pixels', datatype=int,
+                                        value=healthy_area, label=key)
+
+            pcv.outputs.add_observation(sample=key, variable='disease_area',
+                                        trait='area of disease pixels',
+                                        method='pixels', scale='pixels', datatype=int,
+                                        value=disease_area, label=key)
+
             pcv.outputs.add_observation(sample=key, variable='disease_factor',
-                                        trait='ratio of disease pixels to all leaf pixels',
+                                        trait='ratio of disease pixels to all plant pixels',
                                         method='ratio of pixels', scale='percent', datatype=float,
                                         value=disease_fac, label=key)
+
+            pcv.params.debug = 'none'
+
+        if 'callus' in steps:
             
+            ## blur img before using naive baysian classifier
+            blur_img = pcv.gaussian_blur(img=sample_img, ksize=(17, 17), sigma_x=0, sigma_y=None)
+
+            masks = pcv.naive_bayes_classifier(rgb_img=blur_img,
+                                               pdf_file="models/LeafCallusBackground_nbmc.txt")
+            
+            ## normalize masks and calculate the observation values
+
+            masks['leaf'] = pcv.logical_and(masks['leaf'], mask)
+            masks['callus'] = pcv.logical_and(masks['callus'], mask)
+
+            nb_mc_img = pcv.visualize.colorize_masks([masks['background'], masks['leaf'], masks['callus']], \
+                                                     colors=['black', 'green', 'gold'])
+            
+            cv2.imwrite(os.path.dirname(filename) + ('/plot_%s.jpg' % (os.path.basename(filename))), nb_mc_img)
+            leaf_area = np.count_nonzero(masks['leaf'])
+            callus_area = np.count_nonzero(masks['callus'])
+            callus_fac =  callus_area / (leaf_area + callus_area)
+            
+
+            ## add observations
+
+            pcv.outputs.add_observation(sample=key, variable='leaf_area',
+                                        trait='area of leaf pixels',
+                                        method='pixels', scale='pixels', datatype=int,
+                                        value=leaf_area, label=key)
+
+            pcv.outputs.add_observation(sample=key, variable='callus_area',
+                                        trait='area of callus pixels',
+                                        method='pixels', scale='pixels', datatype=int,
+                                        value=callus_area, label=key)
+
+            pcv.outputs.add_observation(sample=key, variable='callus_factor',
+                                        trait='ratio of callus pixels to all sample pixels',
+                                        method='ratio of pixels', scale='percent', datatype=float,
+                                        value=callus_fac, label=key)
+
+            pcv.params.debug = 'none'
         pcv.outputs.save_results(filename=args.result, outformat="json")
 
 if __name__ == '__main__':

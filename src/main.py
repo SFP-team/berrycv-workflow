@@ -76,6 +76,7 @@ try:
     with open(sample_config_path, 'r+') as _f:
         sample_config = json.load(_f)
         sample_config['input_dir'] = str(args.indir)
+        sample_config['json'] = os.path.join(str(args.resultdir), str(args.name) + "_sampling_output.json") 
         sample_config['img_outdir'] = os.path.join(str(args.resultdir), 'samples')
         if args.single:
             sample_config['workflow'] = "single_sample_workflow.py"

@@ -22,7 +22,7 @@ def readQR(img):
 
         ## truncate the non-data
         if (len(qr_data) > 3):
-            qr_data = qr_data[:-2].decode()
+            qr_data = qr_data.decode()
 
         ## print the data if found, return without beginning and end
         if qr_data is not None and len(qr_data) != 0:

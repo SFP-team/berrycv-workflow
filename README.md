@@ -27,6 +27,7 @@ Example usage: `main.py -i `_/inputdirectory_ `-n` _resultname_ `-r` _/resultsdi
   - **shape** : height, object area, convex hull, convex hull area, perimeter, extent x, extent y, longest axis, centroid x coordinate, centroid y coordinate, in bounds QC
   - **color** : color data from RGB, LAB, and HSV color channels as histograms for each
   - **bloom** : utilizes color models created to mask 'bloom' and 'no-bloom' elements in the berry sample photos and creates additional columns of single-valued data for these feature areas
-  - **disease** : produces a disease factor column as a proportion of the pixels below a hue threshold for disease out of the total pixels
+  - **disease** : produces a disease factor from areas obtained through naive bayesian multiclass analysis
+  - **callus** : produces a callus factor from areas obtained through naive bayesian multiclass analysis
 - -P : using the photo booth for input photos, no flag uses sample_leaf_workflow.py
 - -S : using the scanner for input photos, produces a single sample image as a mask of the whole input image (not separate samples), no flag uses sample_leaf_workflow.py

@@ -116,8 +116,22 @@ def build_samples(raw_img, filepath):
         except:
             dt_og = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S').replace('\..*','')
 
-        ## read the QR code information
-        qr = bcv.getQRStruct(raw_img)
+        ## crop image to exclude the QR
+        ## information
+        ## cut qr portion off
+        #sample_img = raw_img[math.floor(raw_img.shape[0] / 6):23*math.floor(raw_img.shape[0] / 24), :]
+        sample_img = raw_img
+        qr_imgw = raw_img[:math.floor(raw_img.shape[0] / 6), :]
+        qr_img = cv2.cvtColor(qr_imgw, cv2.COLOR_BGR2GRAY)
+        qr = None
+        for i in range(130):
+
+            ret, qr_imgt = cv2.threshold(qr_img,100 + i,255,cv2.THRESH_TOZERO)
+            ## read the QR code information
+            qr = bcv.getQRStruct(qr_imgt)
+
+            if (qr is not None):
+                break
 
         ## no qr detected, substitute for name
         if not qr:
@@ -126,13 +140,11 @@ def build_samples(raw_img, filepath):
             name = os.path.basename(filepath).split('.')[0].replace('_', '-')
             qr = name
         else:
-            qr = bcv.readQR(raw_img)
+            qr = bcv.readQR(qr_imgt)
             print("QR: " + qr)
 
-        ## crop image to exclude the QR
-        ## information
-        ## cut qr portion off
-        sample_img = raw_img[:raw_img.shape[0] - math.floor(raw_img.shape[0]/8), :]
+        qr = qr.replace(",", "+")
+
 
         ## create mask and apply it to the cropped image
         mask = generate_mask(sample_img)
@@ -150,6 +162,7 @@ def build_samples(raw_img, filepath):
         s_d = str(qr.replace(":", "+"))
         s_d = str(s_d.replace("|", "+") + "/")
         sample_dir = os.path.join(sample_parent_dir, s_d)
+        print("sample_dir: " + sample_dir)
 
         bcv.create_sub(sample_dir)
 
@@ -159,10 +172,11 @@ def build_samples(raw_img, filepath):
         o = 0 ## single object id, no marker area used
         mean_marker_area = 0
         ## create filename
-        filename_str = assemble_filename_str(dt_og, qr, o, "VIS", mean_marker_area)
+        filename_str = assemble_filename_str(dt_og, qr.replace(",", ":"), o, "VIS", mean_marker_area)
 
         ## save file
         cv2.imwrite(sample_dir + filename_str + '.jpg', final_img)
+        cv2.imwrite(sample_dir + filename_str + '_tag.jpg', qr_imgw)
 
 
 def main():
