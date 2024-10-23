@@ -9,13 +9,18 @@ Once these workflows are complete, the data is stored in a plantcv JSON output f
 
 ## Installation
 
-Firstly, install the `zbar` shared library using `yum`
+Tested on linux and windows with python 3.10
 
-`yum install zbar`
+Firstly, install Anaconda (https://www.anaconda.com/download/) and create a virtual environment.
 
-Once pulled, to run from source, use `pip`, or another package manager to install the python dependencies in `requirements.txt`.
+Once pulled, to run from source, use `pip` to install the python dependencies in `requirements.txt`.
 
-`pip install -r requirements.txt`
+- `pip install -r requirements.txt`
+
+to test:
+on Linux:   ./main.py -i ../examples -n tess -r test -a color
+* if command invalid, try to allow access by using chmod 
+on Windows: python main.py -i ../examples -n tess -r test -a color
 
 ## Flags
 
