@@ -10,7 +10,7 @@
     ],
     "workflow": "analysis_workflow.py",
     "img_outdir": "",
-    "tmp_dir": "",
+    "tmp_dir": "tmp",
     "start_date": null,
     "end_date": null,
     "imgformat": "jpg",
